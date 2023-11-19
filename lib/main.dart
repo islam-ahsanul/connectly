@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:connectly/views/screens/AuthScreen.dart';
+import 'package:connectly/views/screens/auth_screen.dart';
 
 void main() {
   runApp(const MyApp());
