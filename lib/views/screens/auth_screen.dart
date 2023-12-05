@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final _firebase = FirebaseAuth.instance;
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -14,13 +17,35 @@ class _AuthScreenState extends State<AuthScreen> {
   var _enteredPassword = '';
   var _isLogin = true;
 
-  void _submit() {
+  void _submit() async {
     final isValid = _formKey.currentState!.validate();
 
-    if (isValid) {
-      _formKey.currentState!.save();
-      print(_enteredEmail);
-      print(_enteredPassword);
+    if (!isValid) {
+      return;
+    }
+
+    _formKey.currentState!.save();
+
+    if (_isLogin) {
+      // Log user in
+    } else {
+      // Sign user up
+
+      try {
+        final userCredentials = await _firebase.createUserWithEmailAndPassword(
+          email: _enteredEmail,
+          password: _enteredPassword,
+        );
+
+        print(userCredentials);
+      } on FirebaseAuthException catch (error) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message ?? 'Registration failed'),
+          ),
+        );
+      }
     }
   }
 
