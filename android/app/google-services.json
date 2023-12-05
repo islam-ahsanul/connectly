@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "862077219950",
+    "project_id": "connectly-433f2",
+    "storage_bucket": "connectly-433f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:862077219950:android:5c5cebf08589be2065627f",
+        "android_client_info": {
+          "package_name": "com.example.connectly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSeSEIr2h-Cq51Ef2ddJVJWAp_I-9TDJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
