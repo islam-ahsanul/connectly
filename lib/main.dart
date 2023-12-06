@@ -1,3 +1,6 @@
+import 'package:connectly/views/screens/home_screen.dart';
+import 'package:connectly/views/screens/splash_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connectly/views/screens/auth_screen.dart';
 
@@ -28,7 +31,20 @@ class MyApp extends StatelessWidget {
           background: Colors.white,
         ),
       ),
-      home: const AuthScreen(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: ((context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SplashScreen();
+          }
+
+          if (snapshot.hasData) {
+            return const HomeScreen();
+          }
+
+          return const AuthScreen();
+        }),
+      ),
     );
   }
 }
