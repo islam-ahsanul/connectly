@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectly/views/widgets/user_image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 final _firebase = FirebaseAuth.instance;
 
@@ -19,6 +21,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   var _enteredEmail = '';
   var _enteredPassword = '';
+  var _enteredName = '';
+  var _enteredPhoneNumber = '';
+  var _enteredBirthdate; // DateTime type
+  var _enteredAddress = '';
   var _isLogin = true;
   File? _selectedImage;
   var _isAuthenticating = false;
@@ -56,6 +62,20 @@ class _AuthScreenState extends State<AuthScreen> {
         await imageStorageRef.putFile(_selectedImage!);
         final imageUrl = await imageStorageRef.getDownloadURL();
         print(imageUrl);
+        if (!_isLogin) {
+          final user = userCredentials.user;
+          if (user != null) {
+            final firestore = FirebaseFirestore.instance;
+            await firestore.collection('users').doc(user.uid).set({
+              'name': _enteredName,
+              'email': _enteredEmail,
+              'phoneNumber': _enteredPhoneNumber,
+              'birthdate': _enteredBirthdate?.toIso8601String(), // handle null
+              'address': _enteredAddress,
+              'profileImageUrl': imageUrl,
+            });
+          }
+        }
       }
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -123,6 +143,66 @@ class _AuthScreenState extends State<AuthScreen> {
                                 _enteredEmail = value!;
                               },
                             ),
+                            if (!_isLogin)
+                              TextFormField(
+                                decoration:
+                                    const InputDecoration(labelText: 'Name'),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter a name';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  _enteredName = value!;
+                                },
+                              ),
+                            if (!_isLogin)
+                              TextFormField(
+                                decoration: const InputDecoration(
+                                    labelText: 'Phone Number'),
+                                keyboardType: TextInputType.phone,
+                                validator: (value) {
+                                  if (value == null ||
+                                      value.trim().isEmpty ||
+                                      value.length < 11) {
+                                    return 'Please enter a valid phone number';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  _enteredPhoneNumber = value ?? '';
+                                },
+                              ),
+                            if (!_isLogin)
+                              TextButton(
+                                onPressed: () async {
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(1900),
+                                    lastDate: DateTime.now(),
+                                  );
+                                  if (picked != null &&
+                                      picked != _enteredBirthdate) {
+                                    setState(() {
+                                      _enteredBirthdate = picked;
+                                    });
+                                  }
+                                },
+                                child: Text(_enteredBirthdate == null
+                                    ? 'Pick your birthdate'
+                                    : 'Birthdate: ${DateFormat('yyyy-MM-dd').format(_enteredBirthdate!)}'),
+                              ),
+                            if (!_isLogin)
+                              TextFormField(
+                                decoration:
+                                    const InputDecoration(labelText: 'Address'),
+                                keyboardType: TextInputType.streetAddress,
+                                onSaved: (value) {
+                                  _enteredAddress = value ?? '';
+                                },
+                              ),
                             TextFormField(
                               decoration: const InputDecoration(
                                 labelText: 'Password',
