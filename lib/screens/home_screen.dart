@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:connectly/views/screens/new_contact_screen.dart';
-import 'package:connectly/views/screens/all_contacts_screen.dart';
+import 'package:connectly/screens/new_contact_screen.dart';
+import 'package:connectly/screens/all_contacts_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

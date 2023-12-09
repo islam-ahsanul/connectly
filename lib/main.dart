@@ -1,8 +1,8 @@
-import 'package:connectly/views/screens/home_screen.dart';
-import 'package:connectly/views/screens/splash_screen.dart';
+import 'package:connectly/screens/home_screen.dart';
+import 'package:connectly/screens/splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:connectly/views/screens/auth_screen.dart';
+import 'package:connectly/screens/auth_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
