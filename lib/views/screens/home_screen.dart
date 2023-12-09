@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connectly/views/screens/new_contact_screen.dart';
+import 'package:connectly/views/screens/all_contacts_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,11 +13,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Placeholder widget list for different tabs
   static const List<Widget> _widgetOptions = <Widget>[
-    Text('All Contacts', textAlign: TextAlign.center),
+    AllContactsScreen(),
     Text('Favorites', textAlign: TextAlign.center),
-    // Add more widgets for different tabs as needed
   ];
 
   void _onItemTapped(int index) {
@@ -57,7 +56,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Center(
-        // Display the widget based on the current tab
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -70,7 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.star),
             label: 'Favorites',
           ),
-          // Add more items as needed
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
