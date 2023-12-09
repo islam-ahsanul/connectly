@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class NewContactScreen extends StatefulWidget {
@@ -52,9 +53,25 @@ class _NewContactScreenState extends State<NewContactScreen> {
                   return ListTile(
                     title: Text(_searchResults[index]['name']),
                     subtitle: Text(_searchResults[index]['email']),
-                    onTap: () {
-                      // TODO: Add contact logic
-                      print('Selected: ${_searchResults[index]['name']}');
+                    onTap: () async {
+                      bool contactAdded =
+                          await _addContact(_searchResults[index]);
+                      if (contactAdded) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                '${_searchResults[index]['name']} added to contacts.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to add contact.'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                   );
                 },
@@ -93,5 +110,40 @@ class _NewContactScreenState extends State<NewContactScreen> {
         ...phoneResults.docs.map((doc) => doc.data()),
       ];
     });
+  }
+
+  Future<bool> _addContact(Map<String, dynamic> contactData) async {
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      // Handle the case where there is no logged-in user
+      return false;
+    }
+
+    var contactsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('contacts');
+
+    var existingContact = await contactsCollection
+        .where('uid', isEqualTo: contactData['uid'])
+        .get();
+    if (existingContact.docs.isNotEmpty) {
+      // Contact already exists
+      return false;
+    }
+
+    await contactsCollection.add({
+      'uid': contactData['uid'],
+      'name': contactData['name'],
+      'email': contactData['email'],
+      'phoneNumber': contactData['phoneNumber'],
+      'imageUrl': contactData['imageUrl'],
+      'isFavorite': false,
+      'birthdate': contactData['birthdate'],
+      'address': contactData['address'],
+      // Add other relevant fields
+    });
+
+    return true;
   }
 }
