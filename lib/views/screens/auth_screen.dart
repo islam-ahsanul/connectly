@@ -67,6 +67,7 @@ class _AuthScreenState extends State<AuthScreen> {
           if (user != null) {
             final firestore = FirebaseFirestore.instance;
             await firestore.collection('users').doc(user.uid).set({
+              'uid': user.uid,
               'name': _enteredName,
               'email': _enteredEmail,
               'phoneNumber': _enteredPhoneNumber,

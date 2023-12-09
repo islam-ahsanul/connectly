@@ -137,7 +137,7 @@ class _NewContactScreenState extends State<NewContactScreen> {
       'name': contactData['name'],
       'email': contactData['email'],
       'phoneNumber': contactData['phoneNumber'],
-      'imageUrl': contactData['imageUrl'],
+      'profileImageUrl': contactData['profileImageUrl'],
       'isFavorite': false,
       'birthdate': contactData['birthdate'],
       'address': contactData['address'],
