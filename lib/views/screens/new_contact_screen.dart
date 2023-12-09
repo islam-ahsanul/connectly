@@ -67,14 +67,25 @@ class _NewContactScreenState extends State<NewContactScreen> {
   }
 
   void _searchUsers(String query) async {
-    var usersCollection = FirebaseFirestore.instance.collection('users');
-    var emailResults =
-        await usersCollection.where('email', isEqualTo: query).get();
-    var phoneResults =
-        await usersCollection.where('phoneNumber', isEqualTo: query).get();
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = [];
+      });
+      return;
+    }
 
-    print('Email results found: ${emailResults.docs.length}');
-    print('Phone results found: ${phoneResults.docs.length}');
+    String searchUpperBound = query.substring(0, query.length - 1) +
+        String.fromCharCode(query.codeUnitAt(query.length - 1) + 1);
+
+    var usersCollection = FirebaseFirestore.instance.collection('users');
+    var emailResults = await usersCollection
+        .where('email',
+            isGreaterThanOrEqualTo: query, isLessThan: searchUpperBound)
+        .get();
+    var phoneResults = await usersCollection
+        .where('phoneNumber',
+            isGreaterThanOrEqualTo: query, isLessThan: searchUpperBound)
+        .get();
 
     setState(() {
       _searchResults = [
