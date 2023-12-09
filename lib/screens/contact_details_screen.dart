@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:connectly/providers/contacts_provider.dart'; // Adjust the import based on your project structure
 
-class ContactDetailsScreen extends StatefulWidget {
+class ContactDetailsScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> contact;
 
   const ContactDetailsScreen({Key? key, required this.contact})
@@ -12,7 +14,7 @@ class ContactDetailsScreen extends StatefulWidget {
   _ContactDetailsScreenState createState() => _ContactDetailsScreenState();
 }
 
-class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
+class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
   bool isFavorite = false;
 
   @override
@@ -35,13 +37,17 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
           // Other details...
 
           // Action buttons
-          ElevatedButton(onPressed: () => _makeCall(), child: Text('Call')),
-          ElevatedButton(
-              onPressed: () => _startVideoCall(), child: Text('Video Call')),
-          ElevatedButton(onPressed: () => _startChat(), child: Text('Chat')),
+          ElevatedButton(onPressed: _makeCall, child: Text('Call')),
+          ElevatedButton(onPressed: _startVideoCall, child: Text('Video Call')),
+          ElevatedButton(onPressed: _startChat, child: Text('Chat')),
           IconButton(
             icon: Icon(isFavorite ? Icons.star : Icons.star_border),
-            onPressed: () => _toggleFavorite(),
+            onPressed: _toggleFavorite,
+          ),
+          ElevatedButton(
+            onPressed: _deleteContact,
+            child: Text('Delete Contact'),
+            style: ElevatedButton.styleFrom(primary: Colors.red),
           ),
         ],
       ),
@@ -73,17 +79,38 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
         .doc(currentUser.uid)
         .collection('contacts');
 
-    // Query to find the contact document by email
     var querySnapshot = await contactsCollection
         .where('email', isEqualTo: widget.contact['email'])
         .get();
 
-    // Assuming the email is unique and will return only one document
     if (querySnapshot.docs.isNotEmpty) {
       var contactDoc = querySnapshot.docs.first.reference;
       await contactDoc.update({
         'isFavorite': isFavorite,
       });
     }
+
+    ref.read(contactsProvider.notifier).toggleFavorite(widget.contact['email']);
+  }
+
+  void _deleteContact() async {
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    var contactsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('contacts');
+
+    var querySnapshot = await contactsCollection
+        .where('email', isEqualTo: widget.contact['email'])
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      var contactDoc = querySnapshot.docs.first.reference;
+      await contactDoc.delete();
+    }
+
+    Navigator.pop(context); // Pop back to the previous screen after deletion
   }
 }

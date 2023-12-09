@@ -1,31 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectly/widgets/contact_search.dart';
 import 'package:connectly/screens/contact_details_screen.dart';
+import 'package:connectly/providers/contacts_provider.dart'; // Adjust the import based on your project structure
 
-class AllContactsScreen extends StatefulWidget {
+class AllContactsScreen extends ConsumerWidget {
   const AllContactsScreen({Key? key}) : super(key: key);
 
   @override
-  State<AllContactsScreen> createState() => _AllContactsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(contactsProvider.notifier).fetchContacts();
+    final contacts = ref.watch(contactsProvider);
 
-class _AllContactsScreenState extends State<AllContactsScreen> {
-  List<Map<String, dynamic>> contacts = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadContacts();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Contacts'),
-        // Add a search icon if you plan to implement a search feature
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -61,20 +51,5 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
         },
       ),
     );
-  }
-
-  void _loadContacts() async {
-    var currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) return;
-
-    var contactsCollection = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser.uid)
-        .collection('contacts');
-
-    var querySnapshot = await contactsCollection.get();
-    setState(() {
-      contacts = querySnapshot.docs.map((doc) => doc.data()).toList();
-    });
   }
 }
