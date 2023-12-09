@@ -141,7 +141,6 @@ class _NewContactScreenState extends State<NewContactScreen> {
       'isFavorite': false,
       'birthdate': contactData['birthdate'],
       'address': contactData['address'],
-      // Add other relevant fields
     });
 
     return true;

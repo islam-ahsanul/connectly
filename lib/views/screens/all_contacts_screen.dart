@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:connectly/views/widgets/contact_search.dart';
+import 'package:connectly/views/screens/contact_details_screen.dart';
 
 class AllContactsScreen extends StatefulWidget {
   const AllContactsScreen({Key? key}) : super(key: key);
@@ -41,6 +42,15 @@ class _AllContactsScreenState extends State<AllContactsScreen> {
         itemCount: contacts.length,
         itemBuilder: (context, index) {
           return ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ContactDetailsScreen(contact: contacts[index]),
+                ),
+              );
+            },
             leading: CircleAvatar(
               backgroundImage: NetworkImage(
                   contacts[index]['profileImageUrl'] ?? 'default_image_url'),
