@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class NewContactScreen extends StatefulWidget {
@@ -10,35 +11,76 @@ class NewContactScreen extends StatefulWidget {
 class _NewContactScreenState extends State<NewContactScreen> {
   final _formKey = GlobalKey<FormState>();
   String _searchQuery = '';
+  List<Map<String, dynamic>> _searchResults = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Contact'),
+        title: const Text('Add Contact'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: TextFormField(
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-              _searchUsers(value);
-            },
-            decoration: InputDecoration(
-              labelText: 'Email or Phone Number',
-              suffixIcon: _searchQuery.isNotEmpty ? Icon(Icons.search) : null,
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value;
+                  });
+                  if (_searchQuery.isNotEmpty) {
+                    _searchUsers(_searchQuery);
+                  } else {
+                    setState(() {
+                      _searchResults = [];
+                    });
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'Email or Phone Number',
+                  suffixIcon:
+                      _searchQuery.isNotEmpty ? const Icon(Icons.search) : null,
+                ),
+              ),
             ),
-          ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _searchResults.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(_searchResults[index]['name']),
+                    subtitle: Text(_searchResults[index]['email']),
+                    onTap: () {
+                      // TODO: Add contact logic
+                      print('Selected: ${_searchResults[index]['name']}');
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void _searchUsers(String query) {
-    // TODO: Implement search functionality
+  void _searchUsers(String query) async {
+    var usersCollection = FirebaseFirestore.instance.collection('users');
+    var emailResults =
+        await usersCollection.where('email', isEqualTo: query).get();
+    var phoneResults =
+        await usersCollection.where('phoneNumber', isEqualTo: query).get();
+
+    print('Email results found: ${emailResults.docs.length}');
+    print('Phone results found: ${phoneResults.docs.length}');
+
+    setState(() {
+      _searchResults = [
+        ...emailResults.docs.map((doc) => doc.data()),
+        ...phoneResults.docs.map((doc) => doc.data()),
+      ];
+    });
   }
 }
