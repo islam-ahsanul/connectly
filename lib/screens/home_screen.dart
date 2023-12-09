@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connectly/screens/new_contact_screen.dart';
 import 'package:connectly/screens/all_contacts_screen.dart';
+import 'package:connectly/screens/favorite_contacts_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     AllContactsScreen(),
-    Text('Favorites', textAlign: TextAlign.center),
+    FavoritesScreen(),
   ];
 
   void _onItemTapped(int index) {
