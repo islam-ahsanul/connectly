@@ -93,7 +93,6 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -109,6 +108,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 child: Image.asset('assets/images/chat.png'),
               ),
               Card(
+                elevation: 0,
+                color: Theme.of(context).colorScheme.background,
                 margin: const EdgeInsets.all(20),
                 child: SingleChildScrollView(
                   child: Padding(
@@ -228,12 +229,17 @@ class _AuthScreenState extends State<AuthScreen> {
                             if (!_isAuthenticating)
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
                                 ),
                                 onPressed: _submit,
-                                child: Text(_isLogin ? 'Login' : 'Signup'),
+                                child: Text(
+                                  _isLogin ? 'Login' : 'Signup',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondary),
+                                ),
                               ),
                             if (!_isAuthenticating)
                               TextButton(
