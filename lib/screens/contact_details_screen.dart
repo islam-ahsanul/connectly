@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:connectly/providers/contacts_provider.dart'; // Adjust the import based on your project structure
+import 'package:connectly/providers/contacts_provider.dart';
+import 'package:connectly/screens/chat_screen.dart';
+import 'package:connectly/services/chat_service.dart';
 
 class ContactDetailsScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> contact;
@@ -16,6 +18,23 @@ class ContactDetailsScreen extends ConsumerStatefulWidget {
 
 class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
   bool isFavorite = false;
+
+  final ChatService _chatService = ChatService();
+
+  void _startChat() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    String chatId = await _chatService
+        .createChatSession([currentUser.uid, widget.contact['uid']]);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(chatId: chatId),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -60,10 +79,6 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
 
   void _startVideoCall() {
     // Implement video call functionality
-  }
-
-  void _startChat() {
-    // Implement chat functionality
   }
 
   void _toggleFavorite() async {

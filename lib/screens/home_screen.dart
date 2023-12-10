@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:connectly/screens/new_contact_screen.dart';
 import 'package:connectly/screens/all_contacts_screen.dart';
 import 'package:connectly/screens/favorite_contacts_screen.dart';
+import 'package:connectly/screens/recent_chats_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,9 +15,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
+  static List<Widget> _widgetOptions = <Widget>[
     AllContactsScreen(),
     FavoritesScreen(),
+    RecentChatsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -68,6 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.star),
             label: 'Favorites',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chats',
           ),
         ],
         currentIndex: _selectedIndex,
