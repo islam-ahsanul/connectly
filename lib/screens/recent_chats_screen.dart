@@ -29,37 +29,48 @@ class RecentChatsScreen extends StatelessWidget {
           itemCount: recentChats.length,
           itemBuilder: (context, index) {
             var chatSession = recentChats[index];
-            String otherUserId = chatSession.participantIds.firstWhere(
-              (id) => id != currentUserId,
-              orElse: () => '',
-            );
 
             return FutureBuilder<Map<String, dynamic>>(
-              future: _chatService.getUserDetails(otherUserId),
-              builder: (context, userSnapshot) {
-                if (!userSnapshot.hasData) {
+              future: _chatService.getUserDetails(chatSession.lastSenderId),
+              builder: (context, senderSnapshot) {
+                if (!senderSnapshot.hasData) {
                   return ListTile(title: Text("Loading..."));
                 }
 
-                var userDetails = userSnapshot.data!;
-                String name = userDetails['name'] ?? 'Unknown';
-                String profilePictureUrl = userDetails['profileImageUrl'] ?? '';
+                var senderDetails = senderSnapshot.data!;
+                String senderName = senderDetails['name'] ?? 'Unknown';
 
-                return ListTile(
-                  leading: profilePictureUrl.isNotEmpty
-                      ? CircleAvatar(
-                          backgroundImage: NetworkImage(profilePictureUrl))
-                      : CircleAvatar(child: Text(name[0])),
-                  title: Text(name),
-                  subtitle: Text(chatSession.lastMessage),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatScreen(
-                            chatId: chatSession.chatId,
-                            participantIds: chatSession.participantIds),
-                      ),
+                return FutureBuilder<Map<String, dynamic>>(
+                  future: _chatService.getUserDetails(chatSession.participantIds
+                      .firstWhere((id) => id != currentUserId,
+                          orElse: () => '')),
+                  builder: (context, userSnapshot) {
+                    if (!userSnapshot.hasData) {
+                      return ListTile(title: Text("Loading..."));
+                    }
+
+                    var userDetails = userSnapshot.data!;
+                    String name = userDetails['name'] ?? 'Unknown';
+                    String profilePictureUrl =
+                        userDetails['profileImageUrl'] ?? '';
+
+                    return ListTile(
+                      leading: profilePictureUrl.isNotEmpty
+                          ? CircleAvatar(
+                              backgroundImage: NetworkImage(profilePictureUrl))
+                          : CircleAvatar(child: Text(name[0])),
+                      title: Text(name),
+                      subtitle: Text("$senderName: ${chatSession.lastMessage}"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatScreen(
+                                chatId: chatSession.chatId,
+                                participantIds: chatSession.participantIds),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
