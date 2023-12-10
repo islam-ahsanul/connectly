@@ -31,7 +31,10 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatScreen(chatId: chatId),
+        builder: (context) => ChatScreen(
+          chatId: chatId,
+          participantIds: [currentUser.uid, widget.contact['uid']],
+        ),
       ),
     );
   }

@@ -18,7 +18,6 @@ class ChatService {
             .toList());
   }
 
-  // Send a message to a specific chat session
   Future<void> sendMessage(String chatId, ChatMessage message) async {
     await _firestore
         .collection('chats')
@@ -26,10 +25,11 @@ class ChatService {
         .collection('messages')
         .add(message.toFirestore());
 
-    // Update last message and timestamp in the chat document
+    // Update last message, timestamp, and sender ID in the chat document
     await _firestore.collection('chats').doc(chatId).update({
       'lastMessage': message.text,
       'lastMessageTime': Timestamp.fromDate(message.timestamp),
+      'lastSenderId': message.senderId, // Add this line
     });
   }
 
@@ -66,5 +66,11 @@ class ChatService {
         .map((snapshot) => snapshot.docs
             .map((doc) => ChatSession.fromFirestore(doc.data()))
             .toList());
+  }
+
+  Future<Map<String, dynamic>> getUserDetails(String userId) async {
+    DocumentSnapshot userDoc =
+        await _firestore.collection('users').doc(userId).get();
+    return userDoc.data() as Map<String, dynamic>;
   }
 }

@@ -5,8 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
+  final List<String> participantIds;
 
-  const ChatScreen({Key? key, required this.chatId}) : super(key: key);
+  const ChatScreen(
+      {Key? key, required this.chatId, required this.participantIds})
+      : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -17,10 +20,58 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  String otherParticipantId = '';
+  String otherParticipantName = 'Loading...';
+  String otherParticipantProfileUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadParticipantData();
+  }
+
+  void _loadParticipantData() async {
+    otherParticipantId = _getOtherParticipantId();
+
+    try {
+      var userDetails = await _chatService.getUserDetails(otherParticipantId);
+      setState(() {
+        otherParticipantName = userDetails['name'] ?? 'Unknown User';
+        otherParticipantProfileUrl = userDetails['profileImageUrl'] ?? '';
+      });
+    } catch (e) {
+      print('Error fetching participant details: $e');
+    }
+  }
+
+  String _getOtherParticipantId() {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return ''; // or handle this scenario appropriately
+    }
+
+    return widget.participantIds.firstWhere(
+      (id) => id != currentUser.uid,
+      orElse: () =>
+          '', // Return an empty string if no other participant is found
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Chat')),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            if (otherParticipantProfileUrl.isNotEmpty)
+              CircleAvatar(
+                backgroundImage: NetworkImage(otherParticipantProfileUrl),
+              ),
+            SizedBox(width: 10),
+            Text(otherParticipantName),
+          ],
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
