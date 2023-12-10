@@ -30,51 +30,65 @@ class RecentChatsScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             var chatSession = recentChats[index];
 
-            return FutureBuilder<Map<String, dynamic>>(
-              future: _chatService.getUserDetails(chatSession.lastSenderId),
-              builder: (context, senderSnapshot) {
-                if (!senderSnapshot.hasData) {
-                  return ListTile(title: Text("Loading..."));
-                }
+            String senderDisplayName =
+                chatSession.lastSenderId == currentUserId ? "Me" : "Loading...";
+            if (chatSession.lastSenderId != currentUserId) {
+              // Fetch other sender's details only if it's not the current user
+              return FutureBuilder<Map<String, dynamic>>(
+                future: _chatService.getUserDetails(chatSession.lastSenderId),
+                builder: (context, senderSnapshot) {
+                  if (!senderSnapshot.hasData) {
+                    return ListTile(title: Text("Loading..."));
+                  }
 
-                var senderDetails = senderSnapshot.data!;
-                String senderName = senderDetails['name'] ?? 'Unknown';
+                  var senderDetails = senderSnapshot.data!;
+                  senderDisplayName = senderDetails['name'] ?? 'Unknown';
+                  return _buildChatTile(
+                      chatSession, senderDisplayName, context);
+                },
+              );
+            } else {
+              // If the sender is the current user, no need to fetch details
+              return _buildChatTile(chatSession, senderDisplayName, context);
+            }
+          },
+        );
+      },
+    );
+  }
 
-                return FutureBuilder<Map<String, dynamic>>(
-                  future: _chatService.getUserDetails(chatSession.participantIds
-                      .firstWhere((id) => id != currentUserId,
-                          orElse: () => '')),
-                  builder: (context, userSnapshot) {
-                    if (!userSnapshot.hasData) {
-                      return ListTile(title: Text("Loading..."));
-                    }
+  Widget _buildChatTile(
+      ChatSession chatSession, String senderDisplayName, BuildContext context) {
+    String otherUserId = chatSession.participantIds.firstWhere(
+      (id) => id != FirebaseAuth.instance.currentUser?.uid,
+      orElse: () => '',
+    );
 
-                    var userDetails = userSnapshot.data!;
-                    String name = userDetails['name'] ?? 'Unknown';
-                    String profilePictureUrl =
-                        userDetails['profileImageUrl'] ?? '';
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _chatService.getUserDetails(otherUserId),
+      builder: (context, userSnapshot) {
+        if (!userSnapshot.hasData) {
+          return ListTile(title: Text("Loading..."));
+        }
 
-                    return ListTile(
-                      leading: profilePictureUrl.isNotEmpty
-                          ? CircleAvatar(
-                              backgroundImage: NetworkImage(profilePictureUrl))
-                          : CircleAvatar(child: Text(name[0])),
-                      title: Text(name),
-                      subtitle: Text("$senderName: ${chatSession.lastMessage}"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatScreen(
-                                chatId: chatSession.chatId,
-                                participantIds: chatSession.participantIds),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
+        var userDetails = userSnapshot.data!;
+        String name = userDetails['name'] ?? 'Unknown';
+        String profilePictureUrl = userDetails['profileImageUrl'] ?? '';
+
+        return ListTile(
+          leading: profilePictureUrl.isNotEmpty
+              ? CircleAvatar(backgroundImage: NetworkImage(profilePictureUrl))
+              : CircleAvatar(child: Text(name[0])),
+          title: Text(name),
+          subtitle: Text("$senderDisplayName: ${chatSession.lastMessage}"),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                    chatId: chatSession.chatId,
+                    participantIds: chatSession.participantIds),
+              ),
             );
           },
         );
