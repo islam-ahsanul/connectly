@@ -50,29 +50,56 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contact['name']),
-      ),
-      body: Column(
-        children: [
-          // Display contact details
-          Text('Email: ${widget.contact['email']}'),
-          Text('Phone: ${widget.contact['phone']}'),
-          // Other details...
-
-          // Action buttons
-          ElevatedButton(onPressed: _makeCall, child: Text('Call')),
-          ElevatedButton(onPressed: _startVideoCall, child: Text('Video Call')),
-          ElevatedButton(onPressed: _startChat, child: Text('Chat')),
+        actions: [
           IconButton(
             icon: Icon(isFavorite ? Icons.star : Icons.star_border),
             onPressed: _toggleFavorite,
           ),
-          ElevatedButton(
+          IconButton(
+            icon: Icon(Icons.delete),
             onPressed: _deleteContact,
-            child: Text('Delete Contact'),
-            style: ElevatedButton.styleFrom(primary: Colors.red),
           ),
         ],
       ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: NetworkImage(widget.contact['profileImageUrl']),
+            ),
+            SizedBox(height: 8),
+            Text(
+              widget.contact['name'],
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            Text(widget.contact['email']),
+            Text(widget.contact['phoneNumber']),
+            SizedBox(height: 16),
+            _buildActionButtons(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Row _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildActionButton(Icons.call, 'Call', _makeCall),
+        _buildActionButton(Icons.videocam, 'Video Call', _startVideoCall),
+        _buildActionButton(Icons.message, 'Chat', _startChat),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(
+      IconData icon, String label, VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      icon: Icon(icon),
+      label: Text(label),
+      onPressed: onPressed,
     );
   }
 
