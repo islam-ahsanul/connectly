@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectly/providers/contacts_provider.dart';
 import 'package:connectly/screens/chat_screen.dart';
 import 'package:connectly/services/chat_service.dart';
+import 'package:connectly/screens/call_screen.dart';
 
 class ContactDetailsScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> contact;
@@ -108,7 +109,17 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
   }
 
   void _startVideoCall() {
-    // Implement video call functionality
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    String callID = '1'; // Replace with your actual call ID
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CallPage(callID: callID),
+      ),
+    );
   }
 
   void _toggleFavorite() async {
