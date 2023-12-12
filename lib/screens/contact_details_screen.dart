@@ -138,15 +138,64 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
 
   void _startVideoCall() {
     var currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) return;
+    if (currentUser == null ||
+        currentUser.email == null ||
+        currentUser.email!.isEmpty) return;
 
-    String callID = '1'; // Replace with your actual call ID
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CallPage(callID: callID),
-      ),
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        String email = '';
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ElevatedButton(
+                    child: Text('Start Instant Meeting'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CallPage(callID: currentUser.email!),
+                        ),
+                      );
+                    },
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      setModalState(() {
+                        email = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Enter email to join call',
+                    ),
+                  ),
+                  ElevatedButton(
+                    child: Text('Join Call'),
+                    onPressed: email.isNotEmpty
+                        ? () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CallPage(callID: email),
+                              ),
+                            );
+                          }
+                        : null,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
