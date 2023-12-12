@@ -28,6 +28,7 @@ class _AllContactsScreenState extends ConsumerState<AllContactsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.read(contactsProvider.notifier).fetchContacts();
     final contacts = ref.watch(contactsProvider);
 
     return Scaffold(
