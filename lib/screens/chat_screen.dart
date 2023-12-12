@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectly/services/chat_service.dart';
 import 'package:connectly/models/Chat.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:connectly/screens/call_screen.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:connectly/providers/contacts_provider.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   final String chatId;
   final List<String> participantIds;
 
@@ -17,20 +20,29 @@ class ChatScreen extends StatefulWidget {
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ChatService _chatService = ChatService();
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late final Stream<List<ChatMessage>> _chatMessagesStream;
 
   String otherParticipantId = '';
   String otherParticipantName = 'Loading...';
   String otherParticipantNumber = 'Loading...';
   String otherParticipantProfileUrl = '';
+  String otherParticipantEmail = '';
+  String otherParticipantBirthdate = '';
+  String otherParticipantAddress = '';
+  bool _isUserDetailsFetched = false;
 
   @override
   void initState() {
     super.initState();
-    _loadParticipantData();
+    _chatMessagesStream = _chatService.getChatMessages(widget.chatId);
+    if (!_isUserDetailsFetched) {
+      _loadParticipantData();
+      _isUserDetailsFetched = true;
+    }
   }
 
   void _loadParticipantData() async {
@@ -38,11 +50,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       var userDetails = await _chatService.getUserDetails(otherParticipantId);
-      setState(() {
-        otherParticipantName = userDetails['name'] ?? 'Unknown User';
-        otherParticipantNumber = userDetails['phoneNumber'] ?? 'Unknown User';
-        otherParticipantProfileUrl = userDetails['profileImageUrl'] ?? '';
-      });
+      if (mounted) {
+        setState(() {
+          otherParticipantName = userDetails['name'] ?? 'Unknown User';
+          otherParticipantNumber = userDetails['phoneNumber'] ?? 'Unknown User';
+          otherParticipantEmail = userDetails['email'] ?? '';
+          otherParticipantProfileUrl = userDetails['profileImageUrl'] ?? '';
+          otherParticipantBirthdate = userDetails['birthdate'] ?? '';
+          otherParticipantAddress = userDetails['address'] ?? '';
+        });
+      }
     } catch (e) {
       print('Error fetching participant details: $e');
     }
@@ -51,18 +68,20 @@ class _ChatScreenState extends State<ChatScreen> {
   String _getOtherParticipantId() {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
-      return ''; // or handle this scenario appropriately
+      return '';
     }
-
     return widget.participantIds.firstWhere(
       (id) => id != currentUser.uid,
-      orElse: () =>
-          '', // Return an empty string if no other participant is found
+      orElse: () => '',
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final contacts = ref.watch(contactsProvider);
+    final isContact =
+        contacts.any((contact) => contact['uid'] == otherParticipantId);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -78,23 +97,33 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.call),
-            onPressed: () {
-              // Add your call function here
-              FlutterPhoneDirectCaller.callNumber(otherParticipantNumber);
-            },
+            onPressed: () =>
+                FlutterPhoneDirectCaller.callNumber(otherParticipantNumber),
           ),
           IconButton(
             icon: Icon(Icons.videocam),
             onPressed: _startVideoCall,
-            // onPressed: () {},
           ),
         ],
       ),
       body: Column(
         children: [
+          if (!isContact)
+            ElevatedButton(
+              onPressed: () => _addContact(context, {
+                'uid': otherParticipantId,
+                'name': otherParticipantName,
+                'email': otherParticipantEmail,
+                'phoneNumber': otherParticipantNumber,
+                'profileImageUrl': otherParticipantProfileUrl,
+                'birthdate': otherParticipantBirthdate,
+                'address': otherParticipantAddress,
+              }),
+              child: Text('Add to Contacts'),
+            ),
           Expanded(
             child: StreamBuilder<List<ChatMessage>>(
-              stream: _chatService.getChatMessages(widget.chatId),
+              stream: _chatMessagesStream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -188,9 +217,9 @@ class _ChatScreenState extends State<ChatScreen> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        String email = '';
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
+            String email = '';
             return Container(
               padding: EdgeInsets.all(16.0),
               child: Column(
@@ -240,5 +269,35 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       },
     );
+  }
+
+  Future<bool> _addContact(
+      BuildContext context, Map<String, dynamic> contactData) async {
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return false;
+    }
+
+    var contactsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('contacts');
+
+    var existingContact = await contactsCollection
+        .where('uid', isEqualTo: contactData['uid'])
+        .get();
+    if (existingContact.docs.isNotEmpty) {
+      return false;
+    }
+
+    await contactsCollection.add(contactData);
+
+    // Refetch contacts after adding a new contact
+    ref.read(contactsProvider.notifier).fetchContacts();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${contactData['name']} added to contacts.')),
+    );
+    return true;
   }
 }

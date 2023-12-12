@@ -36,4 +36,30 @@ class ContactsNotifier extends StateNotifier<List<Map<String, dynamic>>> {
           contact
     ];
   }
+
+  Future<bool> isContactExists(String userId) async {
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return false;
+
+    var contactsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('contacts');
+
+    var docSnapshot = await contactsCollection.doc(userId).get();
+    return docSnapshot.exists;
+  }
+
+  Future<void> addContact(Map<String, dynamic> contactData) async {
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    var contactsCollection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('contacts');
+
+    await contactsCollection.add(contactData);
+    fetchContacts(); // Refresh the contacts list
+  }
 }
