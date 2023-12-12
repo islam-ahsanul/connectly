@@ -84,13 +84,31 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
     );
   }
 
-  Row _buildActionButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget _buildActionButtons() {
+    return Column(
       children: [
-        _buildActionButton(Icons.call, 'Call', _makeCall),
-        _buildActionButton(Icons.videocam, 'Video Call', _startVideoCall),
-        _buildActionButton(Icons.message, 'Chat', _startChat),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(child: _buildActionButton(Icons.call, 'Call', _makeCall)),
+            SizedBox(width: 8), // Spacing between buttons
+            Expanded(
+                child: _buildActionButton(
+                    Icons.videocam, 'Video Call', _startVideoCall)),
+          ],
+        ),
+        SizedBox(height: 16), // Spacing between rows
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Expanded(
+                child: _buildActionButton(Icons.message, 'Chat', _startChat)),
+            SizedBox(width: 8), // Spacing between buttons
+            Expanded(
+                child:
+                    _buildActionButton(Icons.email, 'Send Email', _sendEmail)),
+          ],
+        ),
       ],
     );
   }
@@ -107,6 +125,8 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
   void _makeCall() {
     // Implement call functionality
   }
+
+  void _sendEmail() {}
 
   void _startVideoCall() {
     var currentUser = FirebaseAuth.instance.currentUser;
