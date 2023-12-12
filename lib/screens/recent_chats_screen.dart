@@ -93,7 +93,10 @@ class RecentChatsScreen extends StatelessWidget {
             child: profilePictureUrl.isEmpty ? Text(name[0]) : null,
           ),
           title: Text(name),
-          subtitle: Text("$senderDisplayName: ${chatSession.lastMessage}"),
+          subtitle: Text(
+            "$senderDisplayName: ${chatSession.lastMessage}",
+            style: TextStyle(color: Colors.grey),
+          ),
           trailing: Text(formattedTime),
           onTap: () {
             Navigator.push(

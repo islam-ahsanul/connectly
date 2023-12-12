@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectly/providers/contacts_provider.dart';
 import 'package:connectly/screens/chat_screen.dart';
@@ -74,10 +75,39 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
             const SizedBox(height: 8),
             Text(
               widget.contact['name'],
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            Text(widget.contact['email']),
-            Text(widget.contact['phoneNumber']),
+            GestureDetector(
+              onLongPress: () {
+                Clipboard.setData(ClipboardData(text: widget.contact['email']));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Email copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(4, 24, 4, 2),
+                child: Text(
+                  widget.contact['email'],
+                  style: TextStyle(fontSize: 24, color: Colors.black),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onLongPress: () {
+                Clipboard.setData(
+                    ClipboardData(text: widget.contact['phoneNumber']));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Phone number copied to clipboard')),
+                );
+              },
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(4, 2, 4, 24),
+                child: Text(
+                  widget.contact['phoneNumber'],
+                  style: TextStyle(fontSize: 24, color: Colors.black),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             _buildActionButtons(),
           ],
