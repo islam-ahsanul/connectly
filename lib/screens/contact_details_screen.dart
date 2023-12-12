@@ -59,7 +59,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
             onPressed: _toggleFavorite,
           ),
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: _deleteContact,
           ),
         ],
@@ -71,14 +71,14 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
               radius: 60,
               backgroundImage: NetworkImage(widget.contact['profileImageUrl']),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               widget.contact['name'],
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             Text(widget.contact['email']),
             Text(widget.contact['phoneNumber']),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildActionButtons(),
           ],
         ),
@@ -95,19 +95,19 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
             Expanded(
                 child: _buildActionButton(Icons.call, 'Call',
                     () => _makeCall(widget.contact['phoneNumber']))),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
                 child: _buildActionButton(
                     Icons.videocam, 'Video Call', _startVideoCall)),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
                 child: _buildActionButton(Icons.message, 'Chat', _startChat)),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
                 child: _buildActionButton(Icons.email, 'Send Email',
                     () => _sendEmail(widget.contact['email']))),
@@ -149,12 +149,12 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Container(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   ElevatedButton(
-                    child: Text('Start Instant Meeting'),
+                    child: const Text('Start Instant Meeting'),
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -172,12 +172,11 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                         email = value;
                       });
                     },
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Enter email to join call',
                     ),
                   ),
                   ElevatedButton(
-                    child: Text('Join Call'),
                     onPressed: email.isNotEmpty
                         ? () {
                             Navigator.pop(context);
@@ -189,6 +188,7 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
                             );
                           }
                         : null,
+                    child: const Text('Join Call'),
                   ),
                 ],
               ),

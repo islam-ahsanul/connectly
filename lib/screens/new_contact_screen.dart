@@ -66,7 +66,7 @@ class _NewContactScreenState extends State<NewContactScreen> {
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text('Failed to add contact.'),
                             backgroundColor: Colors.red,
                           ),

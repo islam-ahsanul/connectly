@@ -16,7 +16,7 @@ class FavoritesScreen extends ConsumerWidget {
         title: const Text('Favorites'),
       ),
       body: favoriteContacts.isEmpty
-          ? Center(child: Text('No favorite contacts'))
+          ? const Center(child: Text('No favorite contacts'))
           : ListView.builder(
               itemCount: favoriteContacts.length,
               itemBuilder: (context, index) {

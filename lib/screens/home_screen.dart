@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:connectly/screens/new_contact_screen.dart';
 import 'package:connectly/screens/all_contacts_screen.dart';
 import 'package:connectly/screens/favorite_contacts_screen.dart';
 import 'package:connectly/screens/recent_chats_screen.dart';
@@ -14,9 +13,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  static List<Widget> _widgetOptions = <Widget>[
-    AllContactsScreen(),
-    FavoritesScreen(),
+  static final List<Widget> _widgetOptions = <Widget>[
+    const AllContactsScreen(),
+    const FavoritesScreen(),
     RecentChatsScreen(),
   ];
 

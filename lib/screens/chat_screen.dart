@@ -90,18 +90,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               CircleAvatar(
                 backgroundImage: NetworkImage(otherParticipantProfileUrl),
               ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(otherParticipantName),
           ],
         ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.call),
+            icon: const Icon(Icons.call),
             onPressed: () =>
                 FlutterPhoneDirectCaller.callNumber(otherParticipantNumber),
           ),
           IconButton(
-            icon: Icon(Icons.videocam),
+            icon: const Icon(Icons.videocam),
             onPressed: _startVideoCall,
           ),
         ],
@@ -119,18 +119,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 'birthdate': otherParticipantBirthdate,
                 'address': otherParticipantAddress,
               }),
-              child: Text('Add to Contacts'),
+              child: const Text('Add to Contacts'),
             ),
           Expanded(
             child: StreamBuilder<List<ChatMessage>>(
               stream: _chatMessagesStream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No messages yet'));
+                  return const Center(child: Text('No messages yet'));
                 }
 
                 var messages = snapshot.data!;
@@ -158,8 +158,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: isMe ? Colors.blue : Colors.grey[300],
           borderRadius: BorderRadius.circular(20),
@@ -174,17 +174,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Widget _buildMessageInputField() {
     return Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: _messageController,
-              decoration: InputDecoration(labelText: 'Type a message'),
+              decoration: const InputDecoration(labelText: 'Type a message'),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.send),
+            icon: const Icon(Icons.send),
             onPressed: _sendMessage,
           ),
         ],
@@ -203,7 +203,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _messageController.clear();
     _scrollController.animateTo(
       0.0,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
   }
@@ -221,12 +221,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           builder: (BuildContext context, StateSetter setModalState) {
             String email = '';
             return Container(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   ElevatedButton(
-                    child: Text('Start Instant Meeting'),
+                    child: const Text('Start Instant Meeting'),
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -244,12 +244,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         email = value;
                       });
                     },
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Enter email to join call',
                     ),
                   ),
                   ElevatedButton(
-                    child: Text('Join Call'),
                     onPressed: email.isNotEmpty
                         ? () {
                             Navigator.pop(context);
@@ -261,6 +260,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             );
                           }
                         : null,
+                    child: const Text('Join Call'),
                   ),
                 ],
               ),

@@ -4,26 +4,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectly/models/ChatSession.dart';
 import 'package:connectly/services/chat_service.dart';
 import 'package:connectly/screens/chat_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class RecentChatsScreen extends StatelessWidget {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ChatService _chatService = ChatService();
+
+  RecentChatsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
     return Scaffold(
-      appBar: AppBar(title: Text('Chats')),
+      appBar: AppBar(title: const Text('Chats')),
       body: StreamBuilder<List<ChatSession>>(
         stream: _chatService.getRecentChats(currentUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No recent chats'));
+            return const Center(child: Text('No recent chats'));
           }
 
           var recentChats = snapshot.data!;
@@ -42,7 +46,7 @@ class RecentChatsScreen extends StatelessWidget {
                   future: _chatService.getUserDetails(chatSession.lastSenderId),
                   builder: (context, senderSnapshot) {
                     if (!senderSnapshot.hasData) {
-                      return ListTile(title: Text("Loading..."));
+                      return const ListTile(title: Text("Loading..."));
                     }
 
                     var senderDetails = senderSnapshot.data!;
@@ -73,19 +77,24 @@ class RecentChatsScreen extends StatelessWidget {
       future: _chatService.getUserDetails(otherUserId),
       builder: (context, userSnapshot) {
         if (!userSnapshot.hasData) {
-          return ListTile(title: Text("Loading..."));
+          return const ListTile(title: Text("Loading..."));
         }
 
         var userDetails = userSnapshot.data!;
         String name = userDetails['name'] ?? 'Unknown';
         String profilePictureUrl = userDetails['profileImageUrl'] ?? '';
+        String formattedTime = timeago.format(chatSession.lastMessageTime);
 
         return ListTile(
-          leading: profilePictureUrl.isNotEmpty
-              ? CircleAvatar(backgroundImage: NetworkImage(profilePictureUrl))
-              : CircleAvatar(child: Text(name[0])),
+          leading: CircleAvatar(
+            backgroundImage: profilePictureUrl.isNotEmpty
+                ? NetworkImage(profilePictureUrl)
+                : null,
+            child: profilePictureUrl.isEmpty ? Text(name[0]) : null,
+          ),
           title: Text(name),
           subtitle: Text("$senderDisplayName: ${chatSession.lastMessage}"),
+          trailing: Text(formattedTime),
           onTap: () {
             Navigator.push(
               context,
@@ -99,5 +108,9 @@ class RecentChatsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  String formatDateTime(DateTime dateTime) {
+    return DateFormat('hh:mm a').format(dateTime);
   }
 }

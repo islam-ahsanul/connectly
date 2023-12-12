@@ -77,10 +77,10 @@ class _AllContactsScreenState extends ConsumerState<AllContactsScreen> {
                 );
               }
               // Show a placeholder or loading indicator while waiting for the data
-              return CircleAvatar(child: CircularProgressIndicator());
+              return const CircleAvatar(child: CircularProgressIndicator());
             },
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
         ],
       ),
       body: ListView.builder(
@@ -116,16 +116,16 @@ class _AllContactsScreenState extends ConsumerState<AllContactsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
               onTap: () {
                 // Navigate to the settings screen
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
               onTap: () {
                 FirebaseAuth.instance.signOut();
                 Navigator.pop(context);
