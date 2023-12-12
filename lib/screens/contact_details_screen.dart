@@ -172,55 +172,62 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
         currentUser.email == null ||
         currentUser.email!.isEmpty) return;
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
       builder: (context) {
         String email = '';
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ElevatedButton(
-                    child: const Text('Start Instant Meeting'),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CallPage(callID: currentUser.email!),
-                        ),
-                      );
-                    },
-                  ),
-                  TextField(
-                    onChanged: (value) {
-                      setModalState(() {
-                        email = value;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Enter email to join call',
+          // Use StatefulBuilder here
+          builder: (BuildContext context, StateSetter setState) {
+            // This setState is local to the StatefulBuilder
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ElevatedButton(
+                      child: const Text('Start Instant Meeting'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CallPage(callID: currentUser.email!),
+                          ),
+                        );
+                      },
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: email.isNotEmpty
-                        ? () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CallPage(callID: email),
-                              ),
-                            );
-                          }
-                        : null,
-                    child: const Text('Join Call'),
-                  ),
-                ],
+                    TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          // Update the local state of the dialog
+                          email = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Enter email to join call',
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: email.isNotEmpty
+                          ? () {
+                              Navigator.pop(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CallPage(callID: email),
+                                ),
+                              );
+                            }
+                          : null,
+                      child: const Text('Join Call'),
+                    ),
+                  ],
+                ),
               ),
             );
           },
