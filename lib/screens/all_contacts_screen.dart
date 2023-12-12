@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:connectly/widgets/contact_search.dart';
 import 'package:connectly/screens/contact_details_screen.dart';
 import 'package:connectly/providers/contacts_provider.dart'; // Adjust the import based on your project structure
+import 'package:connectly/screens/new_contact_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AllContactsScreen extends ConsumerWidget {
   const AllContactsScreen({Key? key}) : super(key: key);
@@ -15,7 +17,9 @@ class AllContactsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All Contacts'),
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.background,
+        title: const Text('Connectly'),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
@@ -26,6 +30,27 @@ class AllContactsScreen extends ConsumerWidget {
               );
             },
           ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NewContactScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add),
+          ),
+          GestureDetector(
+            onTap: () {
+              _showProfileOptions(context);
+            },
+            child: CircleAvatar(
+                // Placeholder for user profile image
+                // backgroundImage: AssetImage('assets/images/chat.png'),
+                ),
+          ),
+          SizedBox(width: 10),
         ],
       ),
       body: ListView.builder(
@@ -50,6 +75,35 @@ class AllContactsScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+
+  void _showProfileOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                // Navigate to the settings screen
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

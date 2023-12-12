@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:connectly/screens/new_contact_screen.dart';
 import 'package:connectly/screens/all_contacts_screen.dart';
@@ -30,34 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Theme.of(context).colorScheme.background,
-        title: const Text('Connectly'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NewContactScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
-          ),
-          GestureDetector(
-            onTap: () {
-              _showProfileOptions(context);
-            },
-            child: CircleAvatar(
-                // Placeholder for user profile image
-                // backgroundImage: AssetImage('assets/images/chat.png'),
-                ),
-          ),
-          SizedBox(width: 10),
-        ],
-      ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
@@ -80,35 +51,6 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
       ),
-    );
-  }
-
-  void _showProfileOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Navigate to the settings screen
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () {
-                FirebaseAuth.instance.signOut();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }
