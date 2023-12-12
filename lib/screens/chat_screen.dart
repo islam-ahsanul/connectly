@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:connectly/services/chat_service.dart';
 import 'package:connectly/models/Chat.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:connectly/screens/call_screen.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -22,6 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   String otherParticipantId = '';
   String otherParticipantName = 'Loading...';
+  String otherParticipantNumber = 'Loading...';
   String otherParticipantProfileUrl = '';
 
   @override
@@ -37,6 +40,7 @@ class _ChatScreenState extends State<ChatScreen> {
       var userDetails = await _chatService.getUserDetails(otherParticipantId);
       setState(() {
         otherParticipantName = userDetails['name'] ?? 'Unknown User';
+        otherParticipantNumber = userDetails['phoneNumber'] ?? 'Unknown User';
         otherParticipantProfileUrl = userDetails['profileImageUrl'] ?? '';
       });
     } catch (e) {
@@ -71,6 +75,20 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(otherParticipantName),
           ],
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.call),
+            onPressed: () {
+              // Add your call function here
+              FlutterPhoneDirectCaller.callNumber(otherParticipantNumber);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.videocam),
+            onPressed: _startVideoCall,
+            // onPressed: () {},
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -158,6 +176,69 @@ class _ChatScreenState extends State<ChatScreen> {
       0.0,
       duration: Duration(milliseconds: 300),
       curve: Curves.easeOut,
+    );
+  }
+
+  void _startVideoCall() {
+    var currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null ||
+        currentUser.email == null ||
+        currentUser.email!.isEmpty) return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        String email = '';
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ElevatedButton(
+                    child: Text('Start Instant Meeting'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CallPage(callID: currentUser.email!),
+                        ),
+                      );
+                    },
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      setModalState(() {
+                        email = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Enter email to join call',
+                    ),
+                  ),
+                  ElevatedButton(
+                    child: Text('Join Call'),
+                    onPressed: email.isNotEmpty
+                        ? () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CallPage(callID: email),
+                              ),
+                            );
+                          }
+                        : null,
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
