@@ -1,18 +1,33 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:connectly/widgets/contact_search.dart';
 import 'package:connectly/screens/contact_details_screen.dart';
-import 'package:connectly/providers/contacts_provider.dart'; // Adjust the import based on your project structure
+import 'package:connectly/providers/contacts_provider.dart';
 import 'package:connectly/screens/new_contact_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-class AllContactsScreen extends ConsumerWidget {
+class AllContactsScreen extends ConsumerStatefulWidget {
   const AllContactsScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(contactsProvider.notifier).fetchContacts();
+  _AllContactsScreenState createState() => _AllContactsScreenState();
+}
+
+class _AllContactsScreenState extends ConsumerState<AllContactsScreen> {
+  late Future<DocumentSnapshot> _userProfileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    final User? user = FirebaseAuth.instance.currentUser;
+    _userProfileFuture =
+        FirebaseFirestore.instance.collection('users').doc(user?.uid).get();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final contacts = ref.watch(contactsProvider);
 
     return Scaffold(
@@ -41,14 +56,28 @@ class AllContactsScreen extends ConsumerWidget {
             },
             icon: const Icon(Icons.add),
           ),
-          GestureDetector(
-            onTap: () {
-              _showProfileOptions(context);
+          FutureBuilder<DocumentSnapshot>(
+            future: _userProfileFuture,
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  snapshot.hasData) {
+                Map<String, dynamic> userData =
+                    snapshot.data!.data() as Map<String, dynamic>;
+                String profileImageUrl =
+                    userData['profileImageUrl'] ?? 'default_fallback_image_url';
+                return GestureDetector(
+                  onTap: () {
+                    _showProfileOptions(context);
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(profileImageUrl),
+                  ),
+                );
+              }
+              // Show a placeholder or loading indicator while waiting for the data
+              return CircleAvatar(child: CircularProgressIndicator());
             },
-            child: CircleAvatar(
-                // Placeholder for user profile image
-                // backgroundImage: AssetImage('assets/images/chat.png'),
-                ),
           ),
           SizedBox(width: 10),
         ],
