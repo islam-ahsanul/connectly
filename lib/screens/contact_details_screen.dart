@@ -6,6 +6,8 @@ import 'package:connectly/providers/contacts_provider.dart';
 import 'package:connectly/screens/chat_screen.dart';
 import 'package:connectly/services/chat_service.dart';
 import 'package:connectly/screens/call_screen.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContactDetailsScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> contact;
@@ -90,23 +92,25 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Expanded(child: _buildActionButton(Icons.call, 'Call', _makeCall)),
-            SizedBox(width: 8), // Spacing between buttons
+            Expanded(
+                child: _buildActionButton(Icons.call, 'Call',
+                    () => _makeCall(widget.contact['phoneNumber']))),
+            SizedBox(width: 8),
             Expanded(
                 child: _buildActionButton(
                     Icons.videocam, 'Video Call', _startVideoCall)),
           ],
         ),
-        SizedBox(height: 16), // Spacing between rows
+        SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Expanded(
                 child: _buildActionButton(Icons.message, 'Chat', _startChat)),
-            SizedBox(width: 8), // Spacing between buttons
+            SizedBox(width: 8),
             Expanded(
-                child:
-                    _buildActionButton(Icons.email, 'Send Email', _sendEmail)),
+                child: _buildActionButton(Icons.email, 'Send Email',
+                    () => _sendEmail(widget.contact['email']))),
           ],
         ),
       ],
@@ -122,11 +126,15 @@ class _ContactDetailsScreenState extends ConsumerState<ContactDetailsScreen> {
     );
   }
 
-  void _makeCall() {
+  void _makeCall(String phoneNumber) async {
     // Implement call functionality
+    await FlutterPhoneDirectCaller.callNumber(phoneNumber);
   }
 
-  void _sendEmail() {}
+  void _sendEmail(String email) {
+    // Implement email functionality
+    launch('mailto:$email');
+  }
 
   void _startVideoCall() {
     var currentUser = FirebaseAuth.instance.currentUser;
